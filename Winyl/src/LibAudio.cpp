@@ -167,7 +167,7 @@ bool LibAudio::Init(WinylWnd* wnd, int driver, int device, bool isBit32, bool is
 		verify(BASS_PluginLoad((const char*)(programPath + L"Bass\\bass_tta.dll").c_str(), BASS_UNICODE));
 	}
 
-	BASS_FX_GetVersion(); // To link bass_fx.lib
+	// BASS_FX_GetVersion(); // Disabled: BASS_FX not available, functionality replaced with stub
 
 	if (isLoadEq)
 		LoadEqualizer();
@@ -1928,8 +1928,10 @@ void LibAudio::EnableEq(bool enable)
 
 	if (enable)
 	{
-		fxPreamp = BASS_ChannelSetFX(hChannel, BASS_FX_BFX_VOLUME, 0);
-		fxEqualizer = BASS_ChannelSetFX(hChannel, BASS_FX_BFX_PEAKEQ, 1);
+		// fxPreamp = BASS_ChannelSetFX(hChannel, BASS_FX_BFX_VOLUME, 0);  // Disabled: BASS_FX not available
+		// fxEqualizer = BASS_ChannelSetFX(hChannel, BASS_FX_BFX_PEAKEQ, 1); // Disabled: BASS_FX not available
+		fxPreamp = 0;
+		fxEqualizer = 0;
 	}
 	else
 	{
