@@ -1,8 +1,14 @@
 #.gitignore
 
+# Build artifacts and binaries
 *.dll
 *.lib
 
+# Temporary downloads and build dependencies
+temp_downloads/
+create_taglib.bat
+
+# Winyl specific exclusions  
 Winyl/stuff/
 Winyl/src/BugTrap/
 Winyl/data/Profile*
@@ -10,6 +16,16 @@ Winyl/data/Skin?*
 
 # Unignore this .user file. The debugger properties are not trivial.
 !Winyl/Winyl.vcxproj.user
+
+# Keep essential BASS headers but ignore libs (they'll be built)
+Winyl/src/bass/*.lib
+Winyl/src/bass/*.dll
+!Winyl/src/bass/*.h
+
+# TagLib generated files and build artifacts
+Winyl/src/taglib/dummy.*
+Winyl/src/taglib/*.obj
+Winyl/src/taglib/x64/
 
 
 ##############################
