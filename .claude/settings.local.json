@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rg:*)",
+      "Bash(cp:*)",
+      "Bash(curl:*)",
+      "Bash(tar:*)",
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe\" Winyl.sln /p:Configuration=Release /p:Platform=x64)",
+      "Bash(\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe\" \"Winyl.sln\" \"/p:Configuration=Release\" \"/p:Platform=x64\")",
+      "Bash(\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe\" Winyl.sln)",
+      "Bash(\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe\" Winyl.sln)",
+      "Bash(\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe\" Winyl.sln)",
+      "Bash(\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe\" Winyl.sln)",
+      "Bash(\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe\" Winyl.sln)",
+      "Bash(powershell.exe:*)",
+      "Bash(mkdir:*)",
+      "Bash(\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe\" Winyl.vcxproj /property:Configuration=Debug /property:Platform=x64 /verbosity:minimal)",
+      "Bash(./build.bat)",
+      "Bash(cmd:*)",
+      "Bash(file:*)",
+      "Bash(./Winyl.exe)",
+      "WebFetch(domain:www.un4seen.com)",
+      "Bash(unzip:*)",
+      "Bash(git check-ignore:*)"
+    ],
+    "deny": []
+  }
+}

@@ -24,6 +24,8 @@ test-*                      # Personal test scripts
 # Downloaded dependencies (auto-downloaded by build scripts)
 temp_downloads/             # Temporary build dependencies
 bass_downloads/             # BASS library downloads
+temp_downloads/*            # All files in temp_downloads
+bass_downloads/*            # All files in bass_downloads
 create_taglib.bat           # Generated TagLib build script
 **/create_taglib.bat        # Generated TagLib build script (any location)
 
@@ -161,3 +163,5 @@ ipch/
 *.cachefile
 *.VC.db
 *.VC.VC.opendb
+bass_downloads/
+temp_downloads/

@@ -155,16 +155,18 @@ bool LibAudio::Init(WinylWnd* wnd, int driver, int device, bool isBit32, bool is
 #endif // NDEBUG
 
 		// Load BASS format plugins (WAV, MP3, OGG, AIFF included in BASS)
-		verify(BASS_PluginLoad((const char*)(programPath + L"Bass\\bassflac.dll").c_str(), BASS_UNICODE));
-		verify(BASS_PluginLoad((const char*)(programPath + L"Bass\\bass_ape.dll").c_str(), BASS_UNICODE));
-		verify(BASS_PluginLoad((const char*)(programPath + L"Bass\\basswma.dll").c_str(), BASS_UNICODE));
-		verify(BASS_PluginLoad((const char*)(programPath + L"Bass\\bass_aac.dll").c_str(), BASS_UNICODE));
-		verify(BASS_PluginLoad((const char*)(programPath + L"Bass\\bassalac.dll").c_str(), BASS_UNICODE));
-		verify(BASS_PluginLoad((const char*)(programPath + L"Bass\\bass_spx.dll").c_str(), BASS_UNICODE));
-		verify(BASS_PluginLoad((const char*)(programPath + L"Bass\\bassopus.dll").c_str(), BASS_UNICODE));
-		verify(BASS_PluginLoad((const char*)(programPath + L"Bass\\basswv.dll").c_str(), BASS_UNICODE));
-		verify(BASS_PluginLoad((const char*)(programPath + L"Bass\\bass_mpc.dll").c_str(), BASS_UNICODE));
-		verify(BASS_PluginLoad((const char*)(programPath + L"Bass\\bass_tta.dll").c_str(), BASS_UNICODE));
+		// TODO: Re-enable FLAC plugin when verified working:
+		// verify(BASS_PluginLoad((const char*)(programPath + L"Bass\\bassflac.dll").c_str(), BASS_UNICODE));
+		// TODO: Download and add remaining plugins:
+		// verify(BASS_PluginLoad((const char*)(programPath + L"Bass\\bass_ape.dll").c_str(), BASS_UNICODE));
+		// verify(BASS_PluginLoad((const char*)(programPath + L"Bass\\basswma.dll").c_str(), BASS_UNICODE));
+		// verify(BASS_PluginLoad((const char*)(programPath + L"Bass\\bass_aac.dll").c_str(), BASS_UNICODE));
+		// verify(BASS_PluginLoad((const char*)(programPath + L"Bass\\bassalac.dll").c_str(), BASS_UNICODE));
+		// verify(BASS_PluginLoad((const char*)(programPath + L"Bass\\bass_spx.dll").c_str(), BASS_UNICODE));
+		// verify(BASS_PluginLoad((const char*)(programPath + L"Bass\\bassopus.dll").c_str(), BASS_UNICODE));
+		// verify(BASS_PluginLoad((const char*)(programPath + L"Bass\\basswv.dll").c_str(), BASS_UNICODE));
+		// verify(BASS_PluginLoad((const char*)(programPath + L"Bass\\bass_mpc.dll").c_str(), BASS_UNICODE));
+		// verify(BASS_PluginLoad((const char*)(programPath + L"Bass\\bass_tta.dll").c_str(), BASS_UNICODE));
 	}
 
 	// BASS_FX_GetVersion(); // Disabled: BASS_FX not available, functionality replaced with stub
