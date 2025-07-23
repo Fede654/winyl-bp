@@ -24,13 +24,15 @@ test-*                      # Personal test scripts
 # Downloaded dependencies (auto-downloaded by build scripts)
 temp_downloads/             # Temporary build dependencies
 bass_downloads/             # BASS library downloads
-create_taglib.bat          # Generated TagLib build script
+create_taglib.bat           # Generated TagLib build script
+**/create_taglib.bat        # Generated TagLib build script (any location)
 
 # Build output and logs
-build_output.txt           # MSBuild output logs
-**/build_output.txt        # MSBuild output logs (all subdirs)
-build_log_*.txt            # Automated build logs
-analyze_build.bat          # Generated analysis scripts
+build_output.txt            # MSBuild output logs
+**/build_output.txt         # MSBuild output logs (all subdirs)
+Winyl/build_output.txt      # Specific build output file
+build_log_*.txt             # Automated build logs
+analyze_build.bat           # Generated analysis scripts
 
 # Runtime and user data (should not be versioned)
 Winyl/stuff/               # Legacy stuff directory
