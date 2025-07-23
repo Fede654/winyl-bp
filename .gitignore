@@ -1,31 +1,60 @@
-#.gitignore
+# Winyl Audio Player - Git Ignore Rules
+# Professional audio player for Windows - Development Environment
+
+##############################
+# WINYL-SPECIFIC EXCLUSIONS
+##############################
 
 # Build artifacts and binaries
 *.dll
 *.lib
 
-# Temporary downloads and build dependencies
-temp_downloads/
-create_taglib.bat
+# Development tools and assistants
+.claude/                    # Claude AI assistant files
+.vscode/                    # VS Code settings
+*.swp                       # Vim swap files
+*.tmp                       # Temporary files
 
-# Winyl specific exclusions  
-Winyl/stuff/
-Winyl/src/BugTrap/
-Winyl/data/Profile*
-Winyl/data/Skin?*
+# Personal test files and experiments (not part of main project)
+docs/*-implementation.md    # Personal implementation tests
+docs/personal-*             # Personal documentation experiments
+test-*                      # Personal test scripts
+*-test.*                    # Personal test files
 
-# Unignore this .user file. The debugger properties are not trivial.
-!Winyl/Winyl.vcxproj.user
+# Downloaded dependencies (auto-downloaded by build scripts)
+temp_downloads/             # Temporary build dependencies
+bass_downloads/             # BASS library downloads
+create_taglib.bat          # Generated TagLib build script
 
-# Keep essential BASS headers but ignore libs (they'll be built)
-Winyl/src/bass/*.lib
-Winyl/src/bass/*.dll
-!Winyl/src/bass/*.h
+# Build output and logs
+**/build_output.txt        # MSBuild output logs
+build_log_*.txt            # Automated build logs
+analyze_build.bat          # Generated analysis scripts
 
-# TagLib generated files and build artifacts
-Winyl/src/taglib/dummy.*
-Winyl/src/taglib/*.obj
-Winyl/src/taglib/x64/
+# Runtime and user data (should not be versioned)
+Winyl/stuff/               # Legacy stuff directory
+Winyl/src/BugTrap/         # BugTrap crash reporting
+Winyl/data/Profile*        # User profile directories
+Winyl/data/Skin?*          # Custom user skins
+
+# Dependency management
+# Keep essential BASS headers but ignore compiled libraries
+Winyl/src/bass/*.lib       # BASS static libraries (rebuilt)
+Winyl/src/bass/*.dll       # BASS dynamic libraries (downloaded)
+!Winyl/src/bass/*.h        # BASS headers (essential for compilation)
+
+# TagLib build artifacts
+Winyl/src/taglib/dummy.*   # Dummy files for build process
+Winyl/src/taglib/*.obj     # Object files
+Winyl/src/taglib/x64/      # Platform-specific builds
+
+# SQLite and XML dependencies (auto-generated)
+Winyl/src/sqlite3/x64/     # SQLite builds
+Winyl/src/pugixml/*.cpp    # Downloaded pugixml sources
+Winyl/src/pugixml/*.hpp    # Downloaded pugixml headers
+
+# IMPORTANT: Keep debugger configuration
+!Winyl/Winyl.vcxproj.user  # Contains non-trivial debugger properties
 
 
 ##############################
