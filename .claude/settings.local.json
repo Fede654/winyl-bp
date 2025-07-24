@@ -29,6 +29,7 @@
       "Bash(\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe\" \"Winyl\\Winyl.vcxproj\" /p:Configuration=Debug /p:Platform=x64 /v:minimal)",
       "Bash(\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe\" WinylWinyl.vcxproj /property:Configuration=Debug /property:Platform=x64 /verbosity:minimal)",
       "Bash(\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe\" \"Winyl/Winyl.vcxproj\" /property:Configuration=Debug /property:Platform=x64 /verbosity:minimal)",
+      "Bash(\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe\" \"Winyl/Winyl.vcxproj\" /property:Configuration=Debug /property:Platform=x64 /verbosity:minimal)",
       "Bash(\"C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe\" \"Winyl/Winyl.vcxproj\" /property:Configuration=Debug /property:Platform=x64 /verbosity:minimal)"
     ],
     "deny": []
