@@ -723,12 +723,14 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
-  <!-- Post-build step to copy data folder for debug builds -->
+  <!-- Post-build step to copy data and BASS libraries for debug builds -->
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <PostBuildEvent>echo === POST-BUILD DATA COPY START ===
+    <PostBuildEvent>echo === POST-BUILD DEPLOYMENT START ===
+echo Copying BASS libraries...
+copy "$(ProjectDir)src\bass\x64\*.dll" "$(OutDir)" /Y
+echo Copying data folder...
 if not exist "$(OutDir)data" mkdir "$(OutDir)data"
-robocopy "$(ProjectDir)data" "$(OutDir)data" /E /XD "Skin\Flat\Flat"
-if %errorlevel% lss 8 set errorlevel=0
-echo === POST-BUILD DATA COPY COMPLETE ===</PostBuildEvent>
+xcopy "$(ProjectDir)data" "$(OutDir)data" /E /I /Y /EXCLUDE:$(ProjectDir)exclude_recursive.txt
+echo === POST-BUILD DEPLOYMENT COMPLETE ===</PostBuildEvent>
   </PropertyGroup>
 </Project>
