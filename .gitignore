@@ -39,6 +39,8 @@ build_output.txt            # MSBuild output logs
 **/build_output.txt         # MSBuild output logs (all subdirs)
 Winyl/build_output.txt      # Specific build output file
 build_log_*.txt             # Automated build logs
+build_log_*.txt
+**/build_log_*.txt           # Build logs in any directory
 analyze_build.bat           # Generated analysis scripts
 test_*.bat                  # Temporary test scripts
 
