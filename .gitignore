@@ -40,6 +40,7 @@ build_output.txt            # MSBuild output logs
 Winyl/build_output.txt      # Specific build output file
 build_log_*.txt             # Automated build logs
 analyze_build.bat           # Generated analysis scripts
+test_*.bat                  # Temporary test scripts
 
 # Runtime and user data (should not be versioned)
 Winyl/stuff/               # Legacy stuff directory
@@ -53,9 +54,7 @@ Winyl/data/Skin?*          # Custom user skins
 **/data/data/**            # Deep recursive paths
 
 # Dependency management
-# Keep essential BASS headers but ignore compiled libraries
-Winyl/src/bass/*.lib       # BASS static libraries (rebuilt)
-Winyl/src/bass/*.dll       # BASS dynamic libraries (downloaded)
+# Keep essential BASS headers but ignore compiled libraries (*.dll and *.lib already globally ignored)
 !Winyl/src/bass/*.h        # BASS headers (essential for compilation)
 
 # TagLib build artifacts
@@ -68,7 +67,7 @@ Winyl/src/sqlite3/x64/     # SQLite builds
 Winyl/src/pugixml/*.cpp    # Downloaded pugixml sources
 Winyl/src/pugixml/*.hpp    # Downloaded pugixml headers
 
-# IMPORTANT: Keep debugger configuration
+# IMPORTANT: Keep debugger configuration (exception to *.user rule below)
 !Winyl/Winyl.vcxproj.user  # Contains non-trivial debugger properties
 
 
@@ -82,9 +81,10 @@ Winyl/src/pugixml/*.hpp    # Downloaded pugixml headers
 
 # User-specific files
 *.suo
-*.user
 *.userosscache
 *.sln.docstates
+# Note: *.user globally ignored, but Winyl.vcxproj.user is kept (see line 70)
+*.user
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

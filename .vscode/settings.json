@@ -1,0 +1,35 @@
+{
+    "files.exclude": {
+        "**/.git": true,
+        "**/node_modules": true,
+        "**/*.obj": true,
+        "**/*.pdb": true,
+        "**/*.ilk": true,
+        "**/*.tlog": true,
+        "**/x64/Debug": true,
+        "**/x64/Release": true,
+        "**/Debug": true,
+        "**/Release": true,
+        "build_log_*.txt": true,
+        "test_sqlite_build.bat": true,
+        "Winyl/src/sqlite3/sqlite3/x64": true,
+        "Winyl/src/taglib/x64": true
+    },
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/.git/subtree-cache/**": true,
+        "**/node_modules/**": true,
+        "**/x64/**": true,
+        "**/Debug/**": true,
+        "**/Release/**": true,
+        "**/*.obj": true,
+        "**/*.pdb": true
+    },
+    "search.exclude": {
+        "**/x64": true,
+        "**/Debug": true,
+        "**/Release": true,
+        "**/*.obj": true,
+        "build_log_*.txt": true
+    }
+}
