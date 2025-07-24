@@ -723,4 +723,14 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <!-- Post-build step to copy data folder for debug builds -->
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <PostBuildEvent>echo === POST-BUILD DATA COPY START ===
+echo OutDir: $(OutDir)
+echo ProjectDir: $(ProjectDir)
+if not exist "$(OutDir)data" mkdir "$(OutDir)data"
+robocopy "$(ProjectDir)data" "$(OutDir)data" /E /XD Flat
+if %errorlevel% lss 8 set errorlevel=0
+echo === POST-BUILD DATA COPY COMPLETE ===</PostBuildEvent>
+  </PropertyGroup>
 </Project>

@@ -24,7 +24,7 @@ test_*.ps1                  # PowerShell test scripts
 test_*.txt                  # Test data files
 test_*.bat                  # Test batch files
 nul                         # Windows null device file
-Winyl/x64/Debug/data/       # Copied data folder in debug builds
+# Debug data symlinks removed to prevent recursive issues
 
 # Downloaded dependencies (auto-downloaded by build scripts)
 temp_downloads/             # Temporary build dependencies
@@ -175,4 +175,4 @@ ipch/
 *.VC.VC.opendb
 bass_downloads/
 temp_downloads/
-Winyl/data/Skin/Flat/Flat/
+# Winyl/data/Skin/Flat/Flat/ - issue resolved by removing debug symlink
