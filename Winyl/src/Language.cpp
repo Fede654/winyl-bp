@@ -182,12 +182,26 @@ bool Language::LoadLanguage(const std::wstring& language)
 
 const wchar_t* Language::GetLine(Lang type, int index)
 {
-	return lines[(std::size_t)type][index].c_str();
+	std::size_t typeIndex = (std::size_t)type;
+	if (typeIndex >= (std::size_t)Lang::EnumCount || index < 0 || (std::size_t)index >= lines[typeIndex].size())
+	{
+		// Return empty string if index is out of bounds or language not loaded
+		static std::wstring empty = L"";
+		return empty.c_str();
+	}
+	return lines[typeIndex][index].c_str();
 }
 
 const std::wstring& Language::GetLineS(Lang type, int index)
 {
-	return lines[(std::size_t)type][index];
+	std::size_t typeIndex = (std::size_t)type;
+	if (typeIndex >= (std::size_t)Lang::EnumCount || index < 0 || (std::size_t)index >= lines[typeIndex].size())
+	{
+		// Return empty string if index is out of bounds or language not loaded
+		static std::wstring empty = L"";
+		return empty;
+	}
+	return lines[typeIndex][index];
 }
 
 bool Language::ReloadLanguage(const std::wstring& language)
