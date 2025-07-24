@@ -1360,7 +1360,7 @@ bool SkinDraw::LoadSkin(const std::wstring& programPath, const std::wstring& ski
 	if (zipFile == nullptr)
 	{
 		path += programPath;
-		path += L"Skin";
+		path += L"data\\Skin";
 		path.push_back('\\');
 		path += skinName;
 		path.push_back('\\');
@@ -1528,7 +1528,7 @@ bool SkinDraw::LoadSkinAlpha(const std::wstring& programPath, const std::wstring
 	if (zipFile == nullptr)
 	{
 		path += programPath;
-		path += L"Skin";
+		path += L"data\\Skin";
 		path.push_back('\\');
 		path += skinName;
 		path.push_back('\\');
