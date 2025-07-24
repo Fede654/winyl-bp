@@ -48,7 +48,7 @@ bool FontsLoader::LoadSkinFonts(const std::wstring& programPath, const std::wstr
 	if (zipFile == nullptr)
 	{
 		path = programPath;
-		path += L"Skin";
+		path += L"data\\Skin";
 		path.push_back('\\');
 		path += skinName;
 		path.push_back('\\');

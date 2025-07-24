@@ -31,7 +31,7 @@ Language::~Language()
 bool Language::LoadLanguage(const std::wstring& language)
 {
 	std::wstring file = programPath;
-	file += L"Language";
+	file += L"data\\Language";
 	file.push_back('\\');
 	file += language;
 	file.push_back('\\');
