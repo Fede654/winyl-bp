@@ -20,6 +20,11 @@ docs/*-implementation.md    # Personal implementation tests
 docs/personal-*             # Personal documentation experiments
 test-*                      # Personal test scripts
 *-test.*                    # Personal test files
+test_*.ps1                  # PowerShell test scripts
+test_*.txt                  # Test data files
+test_*.bat                  # Test batch files
+nul                         # Windows null device file
+Winyl/x64/Debug/data/       # Copied data folder in debug builds
 
 # Downloaded dependencies (auto-downloaded by build scripts)
 temp_downloads/             # Temporary build dependencies
@@ -41,6 +46,11 @@ Winyl/stuff/               # Legacy stuff directory
 Winyl/src/BugTrap/         # BugTrap crash reporting
 Winyl/data/Profile*        # User profile directories
 Winyl/data/Skin?*          # Custom user skins
+
+# Prevent recursive directory issues
+**/data/data/              # Recursive data directories
+**/Skin/Flat/Flat/         # Duplicate skin directories
+**/data/data/**            # Deep recursive paths
 
 # Dependency management
 # Keep essential BASS headers but ignore compiled libraries
