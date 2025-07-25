@@ -188,11 +188,20 @@ private:
 
 	bool isEqEnable = false; // Equalizer state (on/off)
 
-	HFX fxPreamp = NULL; // Pream Bass_FX
-	HFX fxEqualizer = NULL; // Equalizer Bass_FX
+	HFX fxPreamp = NULL; // Preamp Bass_FX
+	HFX fxEqualizer[10]; // 10-band Equalizer Bass_FX (each band is separate BASS_FX_DX8_PARAMEQ)
 
 	float eqPreamp = 0.0f; // Preamp setting in db
 	float eqValues[10] = {0.0f}; // Equalizer settings in db
+	// Standard 10-band equalizer frequencies (Hz)
+	static const float eqFrequencies[10];
+
+	// Initialize equalizer effect handles to NULL
+	void InitializeEqHandles() {
+		for (int i = 0; i < 10; i++) {
+			fxEqualizer[i] = NULL;
+		}
+	}
 	std::wstring eqPreset; // Name of the equalizer preset
 
 	WinylWnd* wndWinyl = nullptr; // Main window (to send messages)

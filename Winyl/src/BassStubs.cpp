@@ -5,8 +5,22 @@
 #include "stdafx.h"
 
 extern "C" {
-    // BASS_FX functions
-    int BASS_FX_GetVersion() { return 0x02040C00; }
+    // BASS_FX functions - Temporary: Keep version stub while using real effect functions
+    int BASS_FX_GetVersion() { return 0x02040C00; } // Stub for compatibility
+    
+    // BASS FX Effects functions - DISABLED: Now using real BASS_FX library
+    // NOTE: These stubs are commented out because bass_fx.lib is now linked
+    /*
+    unsigned long BASS_ChannelSetFX(unsigned long handle, unsigned long type, int priority) { 
+        static unsigned long dummy_handle = 1000;
+        return ++dummy_handle; // Return unique dummy handle for each effect
+    }
+    bool BASS_ChannelRemoveFX(unsigned long handle, unsigned long fx) { return true; } // Pretend success
+    bool BASS_FXSetParameters(unsigned long handle, const void* params) { return true; } // Pretend success
+    bool BASS_FXGetParameters(unsigned long handle, void* params) { return true; } // Pretend success
+    bool BASS_FXSetPriority(unsigned long handle, int priority) { return true; } // Pretend success
+    bool BASS_FXReset(unsigned long handle) { return true; } // Pretend success
+    */
     
     // BASS_Mixer functions  
     int BASS_Mixer_StreamCreate(int freq, int chans, int flags) { return 0; }

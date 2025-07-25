@@ -76,6 +76,7 @@ private:
 	void ApplyEqualizer();
 	bool LoadPresets();
 	void LoadGain(XmlNode& nNode, char* name, float* f);
+	void ResetAllFaders();
 
 	HWND sliderPreamp = NULL;
 	HWND sliderEQ0 = NULL;

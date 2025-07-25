@@ -23,7 +23,12 @@
 
 int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
 {
+	// CRITICAL TEST - This should ALWAYS appear in DebugView
+	::OutputDebugStringW(L"========== WINYL PLAYER STARTING ==========\n");
+	::OutputDebugStringW(L"If you see this in DebugView, OutputDebugString works!\n");
+
 #ifdef _DEBUG
+	::OutputDebugStringW(L"WinMain: DEBUG build detected\n");
 	//_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF /*| _CRTDBG_CHECK_ALWAYS_DF*/ | _CRTDBG_LEAK_CHECK_DF /*| _CRTDBG_DELAY_FREE_MEM_DF*/);
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	// Output all memory problems to a new window to make it more noticeable.
@@ -32,6 +37,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCm
 	_CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_WNDW);
 	_CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_WNDW);
 	_CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_WNDW);
+#else
+	::OutputDebugStringW(L"WinMain: RELEASE build detected\n");
 #endif
 
 	// Use HeapEnableTerminationOnCorruption flag. It is better to crash than continue to work with corrupted heap.

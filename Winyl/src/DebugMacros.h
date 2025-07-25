@@ -39,6 +39,15 @@
         #define WASAPI_DEBUG_LOGF(fmt, ...)
     #endif
 
+    // Equalizer specific logging (detailed)
+    #ifdef WINYL_EQ_DEBUG
+        #define EQ_DEBUG_LOG(msg) DEBUG_LOG("EQ: " msg)
+        #define EQ_DEBUG_LOGF(fmt, ...) DEBUG_LOGF("EQ: " fmt, __VA_ARGS__)
+    #else
+        #define EQ_DEBUG_LOG(msg)
+        #define EQ_DEBUG_LOGF(fmt, ...)
+    #endif
+
 #else
     // Release builds - no logging
     #define DEBUG_LOG(msg)
@@ -49,4 +58,6 @@
     #define DEBUG_PTR_CHECK(ptr, name)
     #define WASAPI_DEBUG_LOG(msg)
     #define WASAPI_DEBUG_LOGF(fmt, ...)
+    #define EQ_DEBUG_LOG(msg)
+    #define EQ_DEBUG_LOGF(fmt, ...)
 #endif

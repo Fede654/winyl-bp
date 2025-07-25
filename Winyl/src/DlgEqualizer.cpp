@@ -359,6 +359,13 @@ void DlgEqualizer::OnVScroll(UINT nSBCode, UINT nPos, HWND hScrollBar)
 
 void DlgEqualizer::OnCommand(WPARAM wParam, LPARAM lParam)
 {
+	// Handle click on "0 db" label to reset all faders
+	if (LOWORD(wParam) == IDC_STATIC_ZERO && HIWORD(wParam) == STN_CLICKED)
+	{
+		ResetAllFaders();
+		return;
+	}
+	
 	if (LOWORD(wParam) >= 10000 && LOWORD(wParam) <= 12000)
 	{
 		isUserDefined = false;
@@ -579,4 +586,37 @@ void DlgEqualizer::LoadGain(XmlNode& xmlNode, char* name, float* f)
 	}
 	
 	(*f) = 0.0f;
+}
+
+void DlgEqualizer::ResetAllFaders()
+{
+	// Set all sliders to center position (24 = 0 dB)
+	const int centerPos = 24;
+	
+	// Reset preamp
+	::SendMessage(sliderPreamp, TBM_SETPOS, TRUE, centerPos);
+	eqPreamp = centerPos;
+	libAudio->SetPreamp(ToFloat(eqPreamp));
+	
+	// Reset all EQ bands
+	::SendMessage(sliderEQ0, TBM_SETPOS, TRUE, centerPos);
+	::SendMessage(sliderEQ1, TBM_SETPOS, TRUE, centerPos);
+	::SendMessage(sliderEQ2, TBM_SETPOS, TRUE, centerPos);
+	::SendMessage(sliderEQ3, TBM_SETPOS, TRUE, centerPos);
+	::SendMessage(sliderEQ4, TBM_SETPOS, TRUE, centerPos);
+	::SendMessage(sliderEQ5, TBM_SETPOS, TRUE, centerPos);
+	::SendMessage(sliderEQ6, TBM_SETPOS, TRUE, centerPos);
+	::SendMessage(sliderEQ7, TBM_SETPOS, TRUE, centerPos);
+	::SendMessage(sliderEQ8, TBM_SETPOS, TRUE, centerPos);
+	::SendMessage(sliderEQ9, TBM_SETPOS, TRUE, centerPos);
+	
+	// Update internal values and apply to audio system
+	for (int i = 0; i < 10; ++i) {
+		eqValues[i] = centerPos;
+		libAudio->SetEq(i, ToFloat(eqValues[i]));
+	}
+	
+	// Clear preset selection since we manually reset
+	libAudio->SetEqPreset(L"");
+	isUserDefined = true;
 }

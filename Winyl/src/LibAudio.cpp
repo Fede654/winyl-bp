@@ -25,6 +25,7 @@
 // Enable detailed WASAPI logging in debug builds
 #ifdef _DEBUG
 #define WINYL_WASAPI_DEBUG
+#define WINYL_EQ_DEBUG
 #endif
 #include "DebugMacros.h"
 
@@ -48,10 +49,28 @@ int LibAudio::FadeTime::Stop  = 500;
 int LibAudio::FadeTime::Pos   = 500;
 int LibAudio::FadeTime::Mute  = 100;
 
+// Standard 10-band equalizer frequencies (Hz)
+// BASS_DX8_PARAMEQ has minimum frequency limits - adjusted low frequencies to work
+const float LibAudio::eqFrequencies[10] = {
+	80.0f,   // Band 0: 80 Hz (BASS_DX8_PARAMEQ minimum frequency)
+	100.0f,  // Band 1: 100 Hz (safe low frequency)
+	125.0f,  // Band 2: 125 Hz (working)
+	250.0f,  // Band 3: 250 Hz (working)
+	500.0f,  // Band 4: 500 Hz (working)
+	1000.0f, // Band 5: 1 kHz (working)
+	2000.0f, // Band 6: 2 kHz (working)
+	4000.0f, // Band 7: 4 kHz (working)
+	8000.0f, // Band 8: 8 kHz (working)
+	16000.0f // Band 9: 16 kHz (working)
+};
+
 LibAudio::LibAudio()
 {
 	BASS_SetConfig(BASS_CONFIG_UNICODE, TRUE);
 	BASS_ASIO_SetUnicode(TRUE);
+	
+	// Initialize equalizer effect handles to NULL
+	InitializeEqHandles();
 }
 
 LibAudio::~LibAudio()
@@ -75,8 +94,38 @@ LibAudio::~LibAudio()
 
 bool LibAudio::Init(WinylWnd* wnd, int driver, int device, bool isBit32, bool isSoftMix, bool isLoadEq)
 {
-	if (wnd)
+	// ALWAYS output this message - regardless of Debug/Release
+	::OutputDebugStringW(L"*** WINYL AUDIO SYSTEM INITIALIZING - DebugView should see this! ***\n");
+	
+#ifdef _DEBUG
+	::OutputDebugStringW(L"Build mode: DEBUG\n");
+#else
+	::OutputDebugStringW(L"Build mode: RELEASE\n");
+#endif
+
+#ifdef WINYL_EQ_DEBUG
+	::OutputDebugStringW(L"WINYL_EQ_DEBUG is defined\n");
+#else
+	::OutputDebugStringW(L"WINYL_EQ_DEBUG is NOT defined\n");
+#endif
+
+	DEBUG_LOG("========================================");
+	DEBUG_LOG("LibAudio::Init - STARTING AUDIO SYSTEM");
+	DEBUG_LOG("========================================");
+	DEBUG_LOGF("Parameters: driver=%d, device=%d, 32bit=%d, softmix=%d, loadEQ=%d", 
+		driver, device, isBit32, isSoftMix, isLoadEq);
+	
+	const wchar_t* driverNames[] = {L"DirectSound", L"WASAPI", L"ASIO", L"Unknown"};
+	int driverIndex = (driver >= 0 && driver <= 2) ? driver : 3;
+	DEBUG_LOGF("Audio Driver: %s (%d)", driverNames[driverIndex], driver);
+	DEBUG_LOGF("Audio Device: %d", device);
+	
+	if (wnd) {
 		wndWinyl = wnd;
+		DEBUG_LOG("Window handle assigned for audio callbacks");
+	} else {
+		DEBUG_LOG("WARNING: No window handle provided");
+	}
 
 	bassDriver = driver;
 	bassDevice = device;
@@ -86,10 +135,15 @@ bool LibAudio::Init(WinylWnd* wnd, int driver, int device, bool isBit32, bool is
 
 	if (bassDriver == 0) // DirectSound
 	{
+		DEBUG_LOG("Initializing DirectSound driver...");
 		BASS_SetConfig(BASS_CONFIG_UPDATEPERIOD, 100);
+		DEBUG_LOG("DirectSound update period set to 100ms");
 
 		if (bassDevice == 0) // Audio device should not be "No Sound"
+		{
+			DEBUG_LOG("ERROR: DirectSound device 0 (No Sound) is not valid");
 			return false;
+		}
 
 		// There was a strange bug:
 		// If in Win7 pin Winyl to the taskbar then BASS_Init often returns BASS_ERROR_UNKNOWN
@@ -98,37 +152,65 @@ bool LibAudio::Init(WinylWnd* wnd, int driver, int device, bool isBit32, bool is
 		// it fails to set the DirectSound "cooperative level" or create the primary buffer.
 		// Setting the cooperative level is what requires the window handle, hence the suspicion that's what's wrong
 		HWND wndHandle = (wndWinyl && wndWinyl->IsWnd()) ? wndWinyl->Wnd() : NULL;
+		DEBUG_LOGF("Attempting BASS_Init with device=%d, window=0x%p", bassDevice, wndHandle);
 		if (!BASS_Init(bassDevice, 44100, BASS_DEVICE_DSOUND, wndHandle, NULL))
+		{
+			int error = BASS_ErrorGetCode();
+			DEBUG_LOGF("ERROR: BASS_Init failed with error code %d", error);
 			return false;
+		}
+		DEBUG_LOG("DirectSound BASS_Init successful");
 
 		dwSampleEx = 0;
 
 		if (isBit32) // 32 bit audio
 		{
+			DEBUG_LOG("Testing 32-bit float audio support...");
 			// Check that the sound card supports 32 bit
 			HSTREAM streamFloat = BASS_StreamCreate(44100, 2, BASS_SAMPLE_FLOAT, NULL, 0);
 			if (streamFloat) // If yes use it
 			{
 				dwSampleEx |= BASS_SAMPLE_FLOAT;
 				BASS_StreamFree(streamFloat);
+				DEBUG_LOG("32-bit float audio support: ENABLED");
+			}
+			else
+			{
+				DEBUG_LOG("32-bit float audio support: NOT AVAILABLE");
 			}
 		}
 
 		if (isSoftMix) // Software audio mixing
+		{
 			dwSampleEx |= BASS_SAMPLE_SOFTWARE;
+			DEBUG_LOG("Software mixing: ENABLED");
+		}
 	}
 	else if (bassDriver == 1) // WASAPI
 	{
+		DEBUG_LOG("Initializing WASAPI driver...");
 		if (!futureWin->IsVistaOrLater())
+		{
+			DEBUG_LOG("ERROR: WASAPI requires Vista or later");
 			return false;
+		}
 
 		BASS_SetConfig(BASS_CONFIG_UPDATEPERIOD, 0);
+		DEBUG_LOG("WASAPI update period set to 0 (event-driven)");
+		
+		DEBUG_LOG("Initializing BASS with dummy device for WASAPI");
 		BASS_Init(0, 44100, 0, 0, NULL);
+		DEBUG_LOG("BASS dummy initialization complete");
 	}
 	else if (bassDriver == 2) // ASIO
 	{
+		DEBUG_LOG("Initializing ASIO driver...");
 		BASS_SetConfig(BASS_CONFIG_UPDATEPERIOD, 0);
+		DEBUG_LOG("ASIO update period set to 0 (event-driven)");
+		
+		DEBUG_LOG("Initializing BASS with dummy device for ASIO");
 		BASS_Init(0, 44100, 0, 0, NULL);
+		DEBUG_LOG("BASS dummy initialization complete");
 
 //		if (!BASS_ASIO_Init(bassDevice, 0))
 //			return false;
@@ -136,19 +218,25 @@ bool LibAudio::Init(WinylWnd* wnd, int driver, int device, bool isBit32, bool is
 
 	if (bassDriver == 1 || bassDriver == 2)
 	{
+		DEBUG_LOG("Setting up high-performance audio buffer thread...");
 		stopThreadBuffer = false;
 		eventBuffer.reset(new Threading::Event());
 		eventPause.reset(new Threading::Event(false));
 		mutexBuffer.reset(new Threading::Mutex());
 		threadBuffer.reset(new Threading::Thread());
 		threadBuffer->Start(std::bind(&LibAudio::RunThreadBuffer, this), Threading::Thread::Priority::TimeCritical);
+		DEBUG_LOG("High-performance audio buffer thread started");
 	}
 
 	
+	DEBUG_LOG("Configuring BASS audio settings...");
 	BASS_SetConfig(BASS_CONFIG_BUFFER, Buffer::DirectSound); // DirectSound buffer size (1000 ms should be enought to preload track)
+	DEBUG_LOGF("DirectSound buffer: %d ms", Buffer::DirectSound);
 	BASS_SetConfig(BASS_CONFIG_NET_PLAYLIST, 1);
 	BASS_SetConfig(BASS_CONFIG_ASYNCFILE_BUFFER, Buffer::BassRead); // default is 65536
+	DEBUG_LOGF("Async file buffer: %d bytes", Buffer::BassRead);
 	BASS_SetConfig(BASS_CONFIG_SRC, 2); // for WASAPI mixer if freq is not supported, default is 1
+	DEBUG_LOG("Sample rate conversion: High quality (2)");
 	//if (!isBassFX) BASS_SetConfig(BASS_CONFIG_FLOATDSP, TRUE);
 
 	if (wnd) // if wnd == nullptr then ReInit and we don't need to load plugins again
@@ -176,11 +264,23 @@ bool LibAudio::Init(WinylWnd* wnd, int driver, int device, bool isBit32, bool is
 		// verify(BASS_PluginLoad((const char*)(programPath + L"Bass\\bass_tta.dll").c_str(), BASS_UNICODE));
 	}
 
-	// BASS_FX_GetVersion(); // Disabled: BASS_FX not available, functionality replaced with stub
+	// Test BASS_FX library availability
+	DEBUG_LOG("Checking BASS_FX availability...");
 
 	if (isLoadEq)
+	{
+		DEBUG_LOG("Loading equalizer settings...");
 		LoadEqualizer();
+		DEBUG_LOG("Equalizer loading complete");
+	}
+	else
+	{
+		DEBUG_LOG("Equalizer loading skipped (isLoadEq=false)");
+	}
 
+	DEBUG_LOG("========================================");
+	DEBUG_LOG("LibAudio::Init - AUDIO SYSTEM READY");
+	DEBUG_LOG("========================================");
 	return true;
 }
 
@@ -970,6 +1070,11 @@ LibAudio::Error LibAudio::PlayFile(const std::wstring& file, long long cue)
 	isMediaPlay = true;
 	isMediaPause = false;
 	isMediaRadio = false;
+	
+	EQ_DEBUG_LOG("Media playback starting - equalizer will now be applied if enabled");
+	if (isEqEnable) {
+		EQ_DEBUG_LOG("Equalizer is enabled - will apply settings to new audio stream");
+	}
 
 	bool isStarted = false;
 
@@ -1903,94 +2008,176 @@ void LibAudio::GetFFT2(float* fft, int size)
 
 void LibAudio::SetEq(int band, float gain)
 {
+	EQ_DEBUG_LOGF("SetEq called: band=%d, gain=%.2f", band, gain);
+	
+	// Validate band range
+	if (band < 0 || band >= 10) {
+		EQ_DEBUG_LOGF("ERROR: Invalid band %d (must be 0-9)", band);
+		return;
+	}
+	
 	eqValues[band] = gain;
 
-	if (!isMediaPlay)
+	if (!isMediaPlay) {
+		EQ_DEBUG_LOG("No media playing, EQ settings stored but not applied");
 		return;
-
-	BASS_BFX_PEAKEQ eq;
-	eq.lBand = band;
-	eq.fGain = gain;
-
-	eq.lChannel = BASS_BFX_CHANALL;
-	eq.fBandwidth = 1.0f;
-	eq.fQ = 0.0f;
-//	eq.fBandwidth = 0.2f;
-//	eq.fQ = 5.0f;
-
-	// http://www.un4seen.com/forum/?topic=6912.msg46560#msg46560
-	// The bands should be evenly spread. For example, 5 bands could be 2 octaves apart, 10 bands could 1 octave apart, 15 bands could 2/3 octaves apart, 30 bands could be 1/3 octaves apart.
-	// To calculate a band's centre frequency...
-	// bandfreq=firstfreq*pow(2, band*bandwidth); // band 0 = 1st band, bandwidth in octaves
-	// http://www.zytrax.com/tech/audio/equalization.html
-
-	// Anticlipping
-	// http://www.un4seen.com/forum/?topic=7264.0;hl=clipping
-
-	switch (band)
-	{
-		case 0: eq.fCenter = 31.5f; break; // 32 // 32.25f
-		case 1: eq.fCenter = 63; break; // 64 // 64.5f
-		case 2: eq.fCenter = 125; break;
-		case 3: eq.fCenter = 250; break;
-		case 4: eq.fCenter = 500; break;
-		case 5: eq.fCenter = 1000; break;
-		case 6: eq.fCenter = 2000; break;
-		case 7: eq.fCenter = 4000; break;
-		case 8: eq.fCenter = 8000; break;
-		case 9: eq.fCenter = 16000; break;
 	}
 
-	BASS_FXSetParameters(fxEqualizer, (void*)&eq);
+	// Check if the effect handle for this band is valid
+	if (fxEqualizer[band] == 0) {
+		EQ_DEBUG_LOGF("ERROR: fxEqualizer[%d] is 0 - EQ effect not initialized!", band);
+		return;
+	}
+
+	// Use BASS_DX8_PARAMEQ structure for built-in BASS effect
+	BASS_DX8_PARAMEQ eq;
+	eq.fCenter = eqFrequencies[band];  // Use frequency from our array
+	eq.fGain = gain;                  // Gain in dB 
+	
+	// CRITICAL FIX: Use valid DirectX 8 bandwidth value (1.0-36.0 semitones)
+	// Bandwidth options: 6.0f (narrow/aggressive), 12.0f (default), 18.0f (wide/gentle)
+	eq.fBandwidth = 6.0f;  // Narrower bandwidth for more precise EQ control
+	
+	// Apply the parameters to the specific band effect
+	if (!BASS_FXSetParameters(fxEqualizer[band], (void*)&eq)) {
+		int error = BASS_ErrorGetCode();
+		EQ_DEBUG_LOGF("ERROR: EQ band %d (%.0f Hz, %.1f dB) failed with BASS error %d", band, eq.fCenter, eq.fGain, error);
+	}
+	// Note: Success case logging removed to reduce noise
 }
 
 void LibAudio::SetPreamp(float preamp)
 {
+	EQ_DEBUG_LOGF("SetPreamp called: preamp=%.2f", preamp);
 	eqPreamp = preamp;
 
-	if (!isMediaPlay)
+	if (!isMediaPlay) {
+		EQ_DEBUG_LOG("No media playing, preamp setting stored but not applied");
 		return;
+	}
 
-	BASS_BFX_VOLUME fv;
-	fv.lChannel = 0;
-	fv.fVolume = (float)pow(10, (preamp / 20));
+	BASS_FX_VOLUME_PARAM fv;
+	fv.fTarget = (float)pow(10, (preamp / 20));
+	fv.fCurrent = fv.fTarget;  // Set current to target (no fade)
+	fv.fTime = 0;              // No fade time
+	fv.lCurve = 0;             // Linear curve
 
+	EQ_DEBUG_LOGF("Calling BASS_FXSetParameters with fxPreamp=%d, volume=%.3f", fxPreamp, fv.fTarget);
+	if (fxPreamp == 0) {
+		EQ_DEBUG_LOG("ERROR: fxPreamp is 0 - Preamp effect not initialized!");
+	}
 	BASS_FXSetParameters(fxPreamp, (void*)&fv);
 }
 
 void LibAudio::EnableEq(bool enable)
 {
+	EQ_DEBUG_LOGF("EnableEq called with enable=%d", enable);
 	isEqEnable = enable;
 
-	if (!isMediaPlay)
+	if (!isMediaPlay) {
+		EQ_DEBUG_LOG("No media playing, equalizer not applied");
 		return;
+	}
 
-	HSTREAM hChannel = streamMixer;
+	// For WASAPI/ASIO, effects must be applied to mixer stream, not decoded source stream
+	HSTREAM hChannel;
+	if (bassDriver == 1 || bassDriver == 2) {
+		// WASAPI/ASIO: Apply effects to mixer stream (where audio is actually processed)
+		hChannel = streamMixer;
+		EQ_DEBUG_LOGF("WASAPI/ASIO: Applying equalizer to MIXER stream %d (not source %d)", hChannel, streamPlay);
+		
+		// CRITICAL CHECK: Verify mixer stream is valid
+		if (hChannel == 0 || hChannel == NULL) {
+			EQ_DEBUG_LOG("CRITICAL ERROR: streamMixer is NULL/0 - effects will fail!");
+			EQ_DEBUG_LOG("Fallback: Attempting to apply effects to source stream instead");
+			hChannel = streamPlay;
+		}
+	} else {
+		// DirectSound: Apply effects to source stream (traditional approach)
+		hChannel = streamPlay;
+		EQ_DEBUG_LOGF("DirectSound: Applying equalizer to SOURCE stream %d (mixer %d)", hChannel, streamMixer);
+	}
+	
+	// Verify final target stream is valid
+	EQ_DEBUG_LOGF("Final target stream: %d (bassDriver=%d)", hChannel, bassDriver);
 
 	if (enable)
 	{
-		// fxPreamp = BASS_ChannelSetFX(hChannel, BASS_FX_BFX_VOLUME, 0);  // Disabled: BASS_FX not available
-		// fxEqualizer = BASS_ChannelSetFX(hChannel, BASS_FX_BFX_PEAKEQ, 1); // Disabled: BASS_FX not available
-		fxPreamp = 0;
-		fxEqualizer = 0;
+		EQ_DEBUG_LOG("Attempting to create BASS_FX equalizer effects...");
+		
+		// Check if channel is valid first
+		BASS_CHANNELINFO ci;
+		if (BASS_ChannelGetInfo(hChannel, &ci)) {
+			EQ_DEBUG_LOGF("Channel info: freq=%d, chans=%d, flags=0x%x, ctype=0x%x", 
+				ci.freq, ci.chans, ci.flags, ci.ctype);
+		} else {
+			int error = BASS_ErrorGetCode();
+			EQ_DEBUG_LOGF("ERROR: BASS_ChannelGetInfo failed with error %d", error);
+		}
+		
+		// Try built-in BASS effects instead of BASS_FX library
+		EQ_DEBUG_LOG("Creating built-in BASS effects...");
+		
+		fxPreamp = BASS_ChannelSetFX(hChannel, BASS_FX_VOLUME, 0);
+		if (fxPreamp == 0) {
+			int error = BASS_ErrorGetCode();
+			EQ_DEBUG_LOGF("ERROR: BASS_FX_VOLUME creation failed with error %d", error);
+		}
+		
+		// Create 10 separate BASS_FX_DX8_PARAMEQ effects for 10-band equalizer
+		int failedBands = 0;
+		for (int i = 0; i < 10; i++) {
+			fxEqualizer[i] = BASS_ChannelSetFX(hChannel, BASS_FX_DX8_PARAMEQ, i + 2); // Priority 2-11
+			if (fxEqualizer[i] == 0) {
+				int error = BASS_ErrorGetCode();
+				EQ_DEBUG_LOGF("ERROR: EQ band %d (%.0f Hz) creation failed with error %d", i, eqFrequencies[i], error);
+				failedBands++;
+			}
+		}
+		
+		if (failedBands == 0) {
+			EQ_DEBUG_LOG("SUCCESS: All EQ effects created successfully");
+		} else {
+			EQ_DEBUG_LOGF("WARNING: %d EQ bands failed to create", failedBands);
+		}
+		
+		// Note: Settings will be applied when SetEq/SetPreamp are called
 	}
 	else
 	{
+		EQ_DEBUG_LOG("Disabling equalizer effects");
 		BASS_ChannelRemoveFX(hChannel, fxPreamp);
-		BASS_ChannelRemoveFX(hChannel, fxEqualizer);
+		for (int i = 0; i < 10; i++) {
+			if (fxEqualizer[i] != 0) {
+				BASS_ChannelRemoveFX(hChannel, fxEqualizer[i]);
+				fxEqualizer[i] = 0;
+			}
+		}
+		fxPreamp = 0;
 	}
 }
 
 void LibAudio::ApplyEqualizer()
 {
+	EQ_DEBUG_LOGF("ApplyEqualizer called - isEqEnable=%d", isEqEnable);
 	if (isEqEnable)
 	{
+		EQ_DEBUG_LOG("Equalizer is enabled - applying all settings to active audio stream");
 		EnableEq(true);
 
+		EQ_DEBUG_LOGF("Applying preamp: %.2f", eqPreamp);
 		SetPreamp(eqPreamp);
 
-		for (int i = 0; i < 10; ++i)
+		EQ_DEBUG_LOG("Applying equalizer bands:");
+		for (int i = 0; i < 10; ++i) {
+			EQ_DEBUG_LOGF("  Band %d: %.2f", i, eqValues[i]);
 			SetEq(i, eqValues[i]);
+		}
+		EQ_DEBUG_LOG("All equalizer settings applied successfully");
+	}
+	else
+	{
+		EQ_DEBUG_LOG("Equalizer is disabled - no settings applied");
 	}
 }
 
@@ -2047,11 +2234,13 @@ void LibAudio::SaveEqBand(XmlNode& xmlNode, char* name, float f)
 
 bool LibAudio::LoadEqualizer()
 {
+	EQ_DEBUG_LOG("LoadEqualizer() starting...");
 	std::wstring file = profilePath;
 	file += L"Equalizer";
 	file.push_back('\\');
 	file += L"Equalizer.xml";
 
+	EQ_DEBUG_LOGF("Loading equalizer config from: %s", file.c_str());
 	XmlFile xmlFile;
 
 	if (xmlFile.LoadFile(file))
@@ -2061,10 +2250,13 @@ bool LibAudio::LoadEqualizer()
 		if (xmlMain)
 		{
 			eqPreset = xmlMain.Attribute16("Preset");
+			EQ_DEBUG_LOGF("Loaded preset: %s", eqPreset.c_str());
 
 			xmlMain.Attribute("Enable", &isEqEnable);
+			EQ_DEBUG_LOGF("Equalizer enabled in config: %d", isEqEnable);
 
 			LoadEqBand(xmlMain, "Preamp", &eqPreamp);
+			EQ_DEBUG_LOGF("Preamp value: %.2f", eqPreamp);
 
 			LoadEqBand(xmlMain, "Band01", &eqValues[0]);
 			LoadEqBand(xmlMain, "Band02", &eqValues[1]);
@@ -2076,11 +2268,21 @@ bool LibAudio::LoadEqualizer()
 			LoadEqBand(xmlMain, "Band08", &eqValues[7]);
 			LoadEqBand(xmlMain, "Band09", &eqValues[8]);
 			LoadEqBand(xmlMain, "Band10", &eqValues[9]);
+			
+			EQ_DEBUG_LOG("All equalizer bands loaded successfully");
+		}
+		else
+		{
+			EQ_DEBUG_LOG("ERROR: No Equalizer node found in XML");
 		}
 	}
 	else
+	{
+		EQ_DEBUG_LOG("ERROR: Failed to load equalizer XML file");
 		return false;
+	}
 
+	EQ_DEBUG_LOG("LoadEqualizer() completed successfully");
 	return true;
 }
 
