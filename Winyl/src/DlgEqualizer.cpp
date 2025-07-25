@@ -493,12 +493,18 @@ void DlgEqualizer::LoadPreset(int preset)
 
 int DlgEqualizer::FromFloat(float f)
 {
-	return 24 - ((int)(f * 10) / 5);
+	// Convert dB value to slider position
+	// Range: ±15 dB for more musical headroom (was ±12 dB)
+	// Formula: center_position - (dB_value * steps_per_dB)
+	return 24 - (int)(f * 24.0f / 15.0f);
 }
 
 float DlgEqualizer::ToFloat(int i)
 {
-	return ((float)(int)(24 - i) / 2);
+	// Convert slider position to dB value
+	// Range: ±15 dB for more musical headroom (was ±12 dB)
+	// Formula: (center_position - slider_position) * dB_per_step
+	return ((float)(int)(24 - i) * 15.0f / 24.0f);
 }
 
 void DlgEqualizer::OnBnClickedCheckEQ()
@@ -525,14 +531,44 @@ void DlgEqualizer::ApplyEqualizer()
 
 bool DlgEqualizer::LoadPresets()
 {
-	std::wstring file = programPath;
-	file += L"Equalizer";
-	file.push_back('\\');
-	file += L"Presets.xml";
+	// Load default presets from data directory
+	std::wstring defaultFile = programPath;
+	defaultFile += L"data";
+	defaultFile.push_back('\\');
+	defaultFile += L"Equalizer";
+	defaultFile.push_back('\\');
+	defaultFile += L"Presets.xml";
 
+#ifdef _DEBUG
+	wprintf(L"DEBUG: Loading default presets from: %s\n", defaultFile.c_str());
+#endif
+
+	LoadPresetsFromFile(defaultFile);
+
+	// Load user presets from profile directory
+	std::wstring userFile = profilePath;
+	userFile += L"Equalizer";
+	userFile.push_back('\\');
+	userFile += L"Presets.xml";
+
+#ifdef _DEBUG
+	wprintf(L"DEBUG: Loading user presets from: %s\n", userFile.c_str());
+#endif
+
+	LoadPresetsFromFile(userFile);
+
+#ifdef _DEBUG
+	wprintf(L"DEBUG: Total presets loaded: %zu\n", presets.size());
+#endif
+
+	return !presets.empty();
+}
+
+bool DlgEqualizer::LoadPresetsFromFile(const std::wstring& filePath)
+{
 	XmlFile xmlFile;
 
-	if (xmlFile.LoadFile(file))
+	if (xmlFile.LoadFile(filePath))
 	{
 		XmlNode xmlMain = xmlFile.RootNode().FirstChild("Presets");
 		
@@ -565,11 +601,11 @@ bool DlgEqualizer::LoadPresets()
 				presets.push_back(preset);
 			}
 		}
+		
+		return true;
 	}
-	else
-		return false;
-
-	return true;
+	
+	return false;
 }
 
 void DlgEqualizer::LoadGain(XmlNode& xmlNode, char* name, float* f)

@@ -49,19 +49,19 @@ int LibAudio::FadeTime::Stop  = 500;
 int LibAudio::FadeTime::Pos   = 500;
 int LibAudio::FadeTime::Mute  = 100;
 
-// Standard 10-band equalizer frequencies (Hz)
-// BASS_DX8_PARAMEQ has minimum frequency limits - adjusted low frequencies to work
+// Original Winyl 10-band equalizer frequencies (Hz) - ISO standard octave-based spacing
+// Technical approach: 31.5, 63, 125, 250, 500, 1k, 2k, 4k, 8k, 16k Hz
 const float LibAudio::eqFrequencies[10] = {
-	80.0f,   // Band 0: 80 Hz (BASS_DX8_PARAMEQ minimum frequency)
-	100.0f,  // Band 1: 100 Hz (safe low frequency)
-	125.0f,  // Band 2: 125 Hz (working)
-	250.0f,  // Band 3: 250 Hz (working)
-	500.0f,  // Band 4: 500 Hz (working)
-	1000.0f, // Band 5: 1 kHz (working)
-	2000.0f, // Band 6: 2 kHz (working)
-	4000.0f, // Band 7: 4 kHz (working)
-	8000.0f, // Band 8: 8 kHz (working)
-	16000.0f // Band 9: 16 kHz (working)
+	31.5f,   // Band 0: 31.5 Hz (Original octave-based spacing)
+	63.0f,   // Band 1: 63 Hz
+	125.0f,  // Band 2: 125 Hz  
+	250.0f,  // Band 3: 250 Hz
+	500.0f,  // Band 4: 500 Hz
+	1000.0f, // Band 5: 1 kHz
+	2000.0f, // Band 6: 2 kHz
+	4000.0f, // Band 7: 4 kHz
+	8000.0f, // Band 8: 8 kHz
+	16000.0f // Band 9: 16 kHz
 };
 
 LibAudio::LibAudio()
@@ -2035,8 +2035,8 @@ void LibAudio::SetEq(int band, float gain)
 	eq.fGain = gain;                  // Gain in dB 
 	
 	// CRITICAL FIX: Use valid DirectX 8 bandwidth value (1.0-36.0 semitones)
-	// Bandwidth options: 6.0f (narrow/aggressive), 12.0f (default), 18.0f (wide/gentle)
-	eq.fBandwidth = 6.0f;  // Narrower bandwidth for more precise EQ control
+	// Bandwidth options: 6.0f (narrow/surgical), 12.0f (default/balanced), 18.0f (wide/musical)
+	eq.fBandwidth = 18.0f;  // Wide bandwidth for musical EQ character (original Winyl approach)
 	
 	// Apply the parameters to the specific band effect
 	if (!BASS_FXSetParameters(fxEqualizer[band], (void*)&eq)) {

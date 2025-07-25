@@ -75,6 +75,7 @@ private:
 	float ToFloat(int i);
 	void ApplyEqualizer();
 	bool LoadPresets();
+	bool LoadPresetsFromFile(const std::wstring& filePath);
 	void LoadGain(XmlNode& nNode, char* name, float* f);
 	void ResetAllFaders();
 

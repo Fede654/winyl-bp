@@ -38,11 +38,18 @@ create_taglib.bat           # Generated TagLib build script
 build_output.txt            # MSBuild output logs
 **/build_output.txt         # MSBuild output logs (all subdirs)
 Winyl/build_output.txt      # Specific build output file
-build_log_*.txt             # Automated build logs
-build_log_*.txt
-**/build_log_*.txt           # Build logs in any directory
+build_log_*.txt             # Automated build logs (keep latest as build_log_latest.txt)
+**/build_log_*.txt          # Build logs in any directory
+!build_log_latest.txt       # Keep the most recent build log
 analyze_build.bat           # Generated analysis scripts
 test_*.bat                  # Temporary test scripts
+
+# Quest development files (keep important analysis)
+!docs/quest/developer_narrative_analysis.json   # 4,874 identified comments (processed data only)
+
+# Temporary files (don't track but may exist locally)
+build_log_latest.txt            # Most recent build log (local only)
+*.obj                           # Object files from compilation tests
 
 # Runtime and user data (should not be versioned)
 Winyl/stuff/               # Legacy stuff directory

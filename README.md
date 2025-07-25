@@ -1,8 +1,40 @@
-# Winyl - Professional Audio Player
+# The Winyl Quest: Archaeological Audio Engineering
 
-Remember when music collections were crafted with devotion? When cue logs were shared like sacred texts, and every pristine copy was too precious to let slip into anonymous digital oblivion. We used to listen to complete albums, meticulously organised, metadata corrected down to every accent mark - obsessive, certainly, but in those days afternoons had room for everything: every record, all of it could fit into a single afternoon. Hard to believe now. A gift for solitary fanatics. Unfold those FLAC collections and find again the lost taste of detail in music.
+*"La exploración sistemática del legado audio de Winyl"*
 
-Thanks to the original author of this meticulous piece of art - a player with the rare distinction of delivering bit-perfect FLAC reproduction on native Windows, one of the few free applications to implement full WASAPI compatibility and bring it to end users. A strange gem, one we loved for a very long time.
+## 🏛️ THE ARCHAEOLOGICAL MISSION
+
+This project is an archaeological exploration of Alex Kras's Winyl music player, using his code commentary and community feedback as a map to build the next generation of audio geek applications.
+
+### 🎯 The Quest
+
+**Vision**: Build the audio geek application that covers the specific niche of bit-perfect playback in a simple reproducer rather than a DAW with its immense complexity layer.
+
+**Method**: Use Alex Kras's project and his testimony as the engine to explore the BASS library in its most extensive and complete implementation of current functionality.
+
+**Foundation**: Honor Alex's work while solving the historical issues his community has been requesting for years.
+
+### 📚 The Archaeological Documents
+
+#### 🏛️ Quest Documentation
+- **[Quest Manifest](docs/quest/PROJECT_QUEST_MANIFEST.md)**: Systematic exploration roadmap
+- **[The Developer Narrative](docs/quest/THE_DEVELOPER_NARRATIVE_ALEX_KRAS.md)**: Complete analysis of Alex Kras through 4,874 code comments
+- **[Historical Issues Analysis](docs/quest/HISTORICAL_ISSUES_TECHNICAL_ANALYSIS.md)**: Why community requests failed and how to solve them
+
+#### 🔧 Technical Documentation  
+- **[BASS Modern Capabilities](docs/technical/BASS_MODERN_CAPABILITIES_EXPLORATION.md)**: What Alex couldn't use vs. what we have now
+- **[BASS Architecture Reference](docs/technical/BASS_ARCHITECTURE_REFERENCE.md)**: Deep dive into audio engine
+- **[WASAPI Exclusive Mode](docs/technical/WASAPI_EXCLUSIVE_MODE.md)**: Bit-perfect audio implementation
+- **[Equalizer Implementation](docs/technical/EQUALIZER_IMPLEMENTATION_CHANGE.md)**: Modern EQ system design
+
+#### 📋 Specifications
+- **[Audio Geek Requirements](docs/specifications/AUDIO_GEEK_REQUIREMENTS_SPECIFICATION.md)**: The dream application specification
+
+---
+
+*Remember when music collections were crafted with devotion? When cue logs were shared like sacred texts, and every pristine copy was too precious to let slip into anonymous digital oblivion. We used to listen to complete albums, meticulously organised, metadata corrected down to every accent mark - obsessive, certainly, but in those days afternoons had room for everything: every record, all of it could fit into a single afternoon. Hard to believe now. A gift for solitary fanatics. Unfold those FLAC collections and find again the lost taste of detail in music.*
+
+*Thanks to Alex Kras, the original author of this meticulous piece of art - a player with the rare distinction of delivering bit-perfect FLAC reproduction on native Windows, one of the few free applications to implement full WASAPI compatibility. A strange gem, one we loved for a very long time.*
 
 ## 📊 Modernization Status
 
