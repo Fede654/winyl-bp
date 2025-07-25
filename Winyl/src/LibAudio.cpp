@@ -22,11 +22,14 @@
 #include "FileSystem.h"
 //#include <regex>
 
-// Enable detailed WASAPI logging in debug builds
-#ifdef _DEBUG
-#define WINYL_WASAPI_DEBUG
-#define WINYL_EQ_DEBUG
-#endif
+// Debug logging system - opt-in for development
+// Uncomment next line to enable comprehensive audio system logging:
+// #define WINYL_ENABLE_DEBUG_LOGGING
+
+// Uncomment for specific system logging (requires WINYL_ENABLE_DEBUG_LOGGING):
+// #define WINYL_WASAPI_DEBUG  
+// #define WINYL_EQ_DEBUG
+
 #include "DebugMacros.h"
 
 // In short, this class is a mess. This class is a mix of BASS C api and C++

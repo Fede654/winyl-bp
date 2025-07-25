@@ -1,10 +1,21 @@
 /*  Debug Macros for Winyl Player
     Centralized debug logging system for development builds
+    
+    Usage:
+    - Automatic in _DEBUG builds with WINYL_ENABLE_DEBUG_LOGGING defined
+    - Zero overhead in Release builds (all macros compile to nothing)
+    - Opt-in even for Debug builds (must explicitly enable)
+    
+    To enable debug logging:
+    1. Debug builds: #define WINYL_ENABLE_DEBUG_LOGGING before including this file
+    2. Or add WINYL_ENABLE_DEBUG_LOGGING to preprocessor definitions
+    3. For specific systems: #define WINYL_WASAPI_DEBUG or WINYL_EQ_DEBUG
 */
 
 #pragma once
 
-#ifdef _DEBUG
+// Only enable debug logging if explicitly requested in debug builds
+#if defined(_DEBUG) && defined(WINYL_ENABLE_DEBUG_LOGGING)
     #include <windows.h>
     #include <stdio.h>
 
@@ -49,7 +60,8 @@
     #endif
 
 #else
-    // Release builds - no logging
+    // Debug logging disabled (Release builds or Debug builds without WINYL_ENABLE_DEBUG_LOGGING)
+    // All macros compile to nothing - zero performance overhead
     #define DEBUG_LOG(msg)
     #define DEBUG_LOGF(fmt, ...)
     #define DEBUG_FUNC_ENTRY(func)
@@ -61,3 +73,27 @@
     #define EQ_DEBUG_LOG(msg)
     #define EQ_DEBUG_LOGF(fmt, ...)
 #endif
+
+/*
+    Example usage in code:
+    
+    // Basic logging
+    DEBUG_LOG("Audio system initialized");
+    DEBUG_LOGF("Sample rate: %d Hz", sampleRate);
+    
+    // Function tracing
+    DEBUG_FUNC_ENTRY(InitializeAudio);
+    if (success) DEBUG_FUNC_SUCCESS(InitializeAudio);
+    else DEBUG_FUNC_FAILED(InitializeAudio);
+    
+    // Pointer validation
+    DEBUG_PTR_CHECK(audioDevice, "audioDevice");
+    
+    // System-specific logging (requires WINYL_WASAPI_DEBUG defined)
+    WASAPI_DEBUG_LOG("Exclusive mode activated");
+    WASAPI_DEBUG_LOGF("Buffer size: %d frames", bufferSize);
+    
+    // Equalizer logging (requires WINYL_EQ_DEBUG defined)
+    EQ_DEBUG_LOG("10-band EQ parameters updated");
+    EQ_DEBUG_LOGF("Band %d: %.1f dB", band, gain);
+*/
