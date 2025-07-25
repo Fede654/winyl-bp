@@ -91,7 +91,8 @@ bool LibAudio::Init(WinylWnd* wnd, int driver, int device, bool isBit32, bool is
 		// The only time BASS_Init can result in BASS_ERROR_UNKNOWN is when
 		// it fails to set the DirectSound "cooperative level" or create the primary buffer.
 		// Setting the cooperative level is what requires the window handle, hence the suspicion that's what's wrong
-		if (!BASS_Init(bassDevice, 44100, BASS_DEVICE_DSOUND, wndWinyl->Wnd(), NULL))
+		HWND wndHandle = (wndWinyl && wndWinyl->IsWnd()) ? wndWinyl->Wnd() : NULL;
+		if (!BASS_Init(bassDevice, 44100, BASS_DEVICE_DSOUND, wndHandle, NULL))
 			return false;
 
 		dwSampleEx = 0;
@@ -1100,16 +1101,35 @@ bool LibAudio::StartPlayWASAPI(bool isFile, bool needFade, bool gaplessResume)
 	// otherwise when stop for example the mixer resets immediately but fading is still going it will cause a bug.
 	streamMixerCopyWASAPI = NULL;
 
+	// Convert bassDevice=-1 to actual device ID for WASAPI exclusive mode
+	int actualDevice = bassDevice;
+	if (bassDevice == -1) {
+		// Find the default WASAPI device
+		BASS_WASAPI_DEVICEINFO deviceInfo;
+		for (int i = 0; i < 20; i++) { // Check first 20 devices
+			if (BASS_WASAPI_GetDeviceInfo(i, &deviceInfo)) {
+				if (deviceInfo.flags & BASS_DEVICE_DEFAULT) {
+					actualDevice = i;
+					break;
+				}
+			}
+		}
+		
+		if (actualDevice == -1) {
+			actualDevice = 0; // Fallback to device 0
+		}
+	}
+
 	// https://msdn.microsoft.com/en-us/library/windows/desktop/dd370875%28v=vs.85%29.aspx
 	if (!wasapiEvent)
 	{
-		if (!BASS_WASAPI_Init(bassDevice, ci.freq, ci.chans, BASS_WASAPI_AUTOFORMAT|BASS_WASAPI_EXCLUSIVE,
+		if (!BASS_WASAPI_Init(actualDevice, ci.freq, ci.chans, BASS_WASAPI_AUTOFORMAT|BASS_WASAPI_EXCLUSIVE,
 			0.05f, 0, WasapiProc, (void*)&streamMixerCopyWASAPI))
 			return false;
 	}
 	else
 	{
-		if (!BASS_WASAPI_Init(bassDevice, ci.freq, ci.chans, BASS_WASAPI_AUTOFORMAT|BASS_WASAPI_EXCLUSIVE|BASS_WASAPI_EVENT,
+		if (!BASS_WASAPI_Init(actualDevice, ci.freq, ci.chans, BASS_WASAPI_AUTOFORMAT|BASS_WASAPI_EXCLUSIVE|BASS_WASAPI_EVENT,
 			0.05f, 0, WasapiProc, (void*)&streamMixerCopyWASAPI))
 			return false;
 	}

@@ -182,7 +182,9 @@ void DlgPagePopup::SaveSettings()
 	settings->SetPopupDelay(posHold*100, posShow*100, posHide*100);
 
 	//contextMenu->CheckPopup(!!::IsDlgButtonChecked(thisWnd, IDC_CHECK_POPUP));
-	contextMenu->CheckPopupPosition(selPos);
+	if (contextMenu != nullptr) {
+		contextMenu->CheckPopupPosition(selPos);
+	}
 
 	if (skinPopup)
 	{

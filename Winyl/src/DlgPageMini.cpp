@@ -97,7 +97,9 @@ void DlgPageMini::SaveSettings()
 	else
 		settings->SetMiniZOrder(0);
 
-	skinMini->SetZOrder(settings->GetMiniZOrder());
+	if (skinMini != nullptr) {
+		skinMini->SetZOrder(settings->GetMiniZOrder());
+	}
 
 	int pos = (int)::SendMessage(sliderOpacity, TBM_GETPOS, 0, 0);
 	settings->SetMiniTransparency(pos);
