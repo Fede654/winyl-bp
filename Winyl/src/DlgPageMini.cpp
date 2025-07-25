@@ -18,6 +18,7 @@
 #include "stdafx.h"
 #include "resource.h"
 #include "DlgPageMini.h"
+#include "DebugMacros.h"
 
 DlgPageMini::DlgPageMini()
 {
@@ -90,6 +91,8 @@ void DlgPageMini::OnHScroll(UINT nSBCode, UINT nPos, HWND hScrollBar)
 
 void DlgPageMini::SaveSettings()
 {
+	DEBUG_FUNC_ENTRY(DlgPageMini::SaveSettings);
+
 	if (::IsDlgButtonChecked(thisWnd, IDC_RADIO_ALWAYS_ON_OFF))
 		settings->SetMiniZOrder(2);
 	else if (::IsDlgButtonChecked(thisWnd, IDC_RADIO_ALWAYS_ON_DESKTOP))
@@ -97,12 +100,15 @@ void DlgPageMini::SaveSettings()
 	else
 		settings->SetMiniZOrder(0);
 
+	DEBUG_PTR_CHECK(skinMini, "skinMini");
 	if (skinMini != nullptr) {
 		skinMini->SetZOrder(settings->GetMiniZOrder());
 	}
 
 	int pos = (int)::SendMessage(sliderOpacity, TBM_GETPOS, 0, 0);
 	settings->SetMiniTransparency(pos);
+	
+	DEBUG_FUNC_SUCCESS(DlgPageMini::SaveSettings);
 }
 
 void DlgPageMini::CancelSettings()

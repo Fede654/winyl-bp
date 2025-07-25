@@ -22,6 +22,12 @@
 #include "FileSystem.h"
 //#include <regex>
 
+// Enable detailed WASAPI logging in debug builds
+#ifdef _DEBUG
+#define WINYL_WASAPI_DEBUG
+#endif
+#include "DebugMacros.h"
+
 // In short, this class is a mess. This class is a mix of BASS C api and C++
 // every change should be as careful as possible or it can just break things.
 
@@ -1104,12 +1110,14 @@ bool LibAudio::StartPlayWASAPI(bool isFile, bool needFade, bool gaplessResume)
 	// Convert bassDevice=-1 to actual device ID for WASAPI exclusive mode
 	int actualDevice = bassDevice;
 	if (bassDevice == -1) {
+		WASAPI_DEBUG_LOG("Converting default device (-1) to actual device ID");
 		// Find the default WASAPI device
 		BASS_WASAPI_DEVICEINFO deviceInfo;
 		for (int i = 0; i < 20; i++) { // Check first 20 devices
 			if (BASS_WASAPI_GetDeviceInfo(i, &deviceInfo)) {
 				if (deviceInfo.flags & BASS_DEVICE_DEFAULT) {
 					actualDevice = i;
+					WASAPI_DEBUG_LOGF("Found default device at index %d", i);
 					break;
 				}
 			}
@@ -1117,21 +1125,32 @@ bool LibAudio::StartPlayWASAPI(bool isFile, bool needFade, bool gaplessResume)
 		
 		if (actualDevice == -1) {
 			actualDevice = 0; // Fallback to device 0
+			WASAPI_DEBUG_LOG("No default device found, using device 0");
 		}
 	}
 
 	// https://msdn.microsoft.com/en-us/library/windows/desktop/dd370875%28v=vs.85%29.aspx
+	WASAPI_DEBUG_LOGF("Initializing WASAPI with device %d (original: %d)", actualDevice, bassDevice);
+	
 	if (!wasapiEvent)
 	{
 		if (!BASS_WASAPI_Init(actualDevice, ci.freq, ci.chans, BASS_WASAPI_AUTOFORMAT|BASS_WASAPI_EXCLUSIVE,
-			0.05f, 0, WasapiProc, (void*)&streamMixerCopyWASAPI))
+			0.05f, 0, WasapiProc, (void*)&streamMixerCopyWASAPI)) {
+			DWORD error = BASS_ErrorGetCode();
+			WASAPI_DEBUG_LOGF("BASS_WASAPI_Init FAILED with error %d", error);
 			return false;
+		}
+		WASAPI_DEBUG_LOG("BASS_WASAPI_Init SUCCESS");
 	}
 	else
 	{
 		if (!BASS_WASAPI_Init(actualDevice, ci.freq, ci.chans, BASS_WASAPI_AUTOFORMAT|BASS_WASAPI_EXCLUSIVE|BASS_WASAPI_EVENT,
-			0.05f, 0, WasapiProc, (void*)&streamMixerCopyWASAPI))
+			0.05f, 0, WasapiProc, (void*)&streamMixerCopyWASAPI)) {
+			DWORD error = BASS_ErrorGetCode();
+			WASAPI_DEBUG_LOGF("BASS_WASAPI_Init (with EVENT) FAILED with error %d", error);
 			return false;
+		}
+		WASAPI_DEBUG_LOG("BASS_WASAPI_Init (with EVENT) SUCCESS");
 	}
 
 	BASS_WASAPI_INFO wi;
