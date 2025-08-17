@@ -50,12 +50,9 @@
 
 ## 📚 ORGANIZACIÓN DOCUMENTAL
 
-### Documentos Existentes (Reformulados)
 1. **`THE_DEVELOPER_NARRATIVE_ALEX_KRAS.md`** → Base arqueológica
 2. **`BASS_ARCHITECTURE_REFERENCE.md`** → Technical deep-dive
 3. **`EQUALIZER_IMPLEMENTATION_CHANGE.md`** → Caso de estudio específico
-
-### Nuevos Documentos de la Quest
 4. **`BASS_MODERN_CAPABILITIES_EXPLORATION.md`** → Catálogo de posibilidades
 5. **`HISTORICAL_ISSUES_TECHNICAL_ANALYSIS.md`** → Por qué fallaron y cómo resolverlas
 6. **`AUDIO_GEEK_REQUIREMENTS_SPECIFICATION.md`** → Lo que realmente necesitamos
